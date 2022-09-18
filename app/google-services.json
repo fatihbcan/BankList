@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "733922983842",
+    "project_id": "banklistapp",
+    "storage_bucket": "banklistapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:733922983842:android:cb2664575e9b9b3585fcfb",
+        "android_client_info": {
+          "package_name": "com.example.banklist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "733922983842-bkknhtv83gp32iu40c3nk3nuvra6d3ut.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaybJ-GTntImb17Uz1MsIq2INXYv4iFz0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "733922983842-bkknhtv83gp32iu40c3nk3nuvra6d3ut.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

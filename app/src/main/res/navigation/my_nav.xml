@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/my_nav"
+    app:startDestination="@id/bankListFragment">
+
+    <fragment
+        android:id="@+id/bankListFragment"
+        android:name="com.example.banklist.view.BankListFragment"
+        android:label="fragment_bank_list"
+        tools:layout="@layout/fragment_bank_list" >
+        <action
+            android:id="@+id/action_bankListFragment_to_bankDetailFragment"
+            app:destination="@id/bankDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/bankDetailFragment"
+        android:name="com.example.banklist.view.BankDetailFragment"
+        android:label="fragment_bank_detail"
+        tools:layout="@layout/fragment_bank_detail" />
+</navigation>
