@@ -1,23 +1,47 @@
 package com.example.banklist.viewModel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.util.Log
+import androidx.lifecycle.*
+import com.example.banklist.models.BankModel
 import com.example.banklist.network.BankApiService
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 @HiltViewModel
-class BankListViewModel @Inject constructor(private val bankApiService: BankApiService) : ViewModel() {
+class BankListViewModel @Inject constructor(private val bankApiService: BankApiService) :
+    ViewModel() {
 
-    fun deneme(){
-        viewModelScope.launch(IO) {
-            bankApiService.getAllBanks()
+    private val _shownBankList = MutableLiveData<List<BankModel>>()
+
+    private val currentQuery = MutableLiveData(DEFAULT_QUERY)
+
+    val shownBankList: LiveData<List<BankModel>> = currentQuery.switchMap { query ->
+        Log.d("Fatih", "query updated")
+
+        if (query.isNullOrEmpty()) {
+            _shownBankList
+        } else {
+            val tempList = _shownBankList.value?.filter {
+                it.city.startsWith(query, true)}
+            liveData {
+                tempList?.let { emit(it) }
+            }
         }
+    }
+
+    fun searchItems(query: String) {
+        Log.d("Fatih", "query : " + query)
+        currentQuery.value = query
+    }
+
+    fun loadData() {
+        viewModelScope.launch {
+            _shownBankList.value = bankApiService.getAllBanks()
+        }
+    }
+
+    companion object {
+        private val DEFAULT_QUERY = ""
     }
 }

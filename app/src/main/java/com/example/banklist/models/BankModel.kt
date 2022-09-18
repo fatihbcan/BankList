@@ -16,4 +16,4 @@ data class BankModel(
     @SerializedName("dc_ON_OFF_SITE") val on_off_site: String,
     @SerializedName("dc_BOLGE_KOORDINATORLUGU") val regionalCoordinator: String,
     @SerializedName("dc_EN_YAKIM_ATM") val closestATM: String
-    )
+)
