@@ -5,40 +5,48 @@ import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.banklist.models.BankModel
+import com.example.banklist.network.ApiServiceRepository
 import com.example.banklist.network.BankApiService
+import com.example.banklist.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import android.net.NetworkRequest
-
-import androidx.lifecycle.MutableLiveData
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @HiltViewModel
-class BankListViewModel @Inject constructor(private val bankApiService: BankApiService, @ApplicationContext private val context: Context) :
+class BankListViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val apiServiceRepository: ApiServiceRepository
+) :
     ViewModel() {
 
     private val _shownBankList = MutableLiveData<List<BankModel>>()
     private val currentQuery = MutableLiveData(DEFAULT_QUERY)
     private val _errorState = MediatorLiveData<Boolean>()
-    val errorState : LiveData<Boolean> = _errorState
+    val errorState: LiveData<Boolean> = _errorState
     private val _errorText = MutableLiveData("")
-    val errorText : LiveData<String> = _errorText
+    val errorText: LiveData<String> = _errorText
     private val _isApiFailed = MutableLiveData(false)
     private val _networkState = MutableLiveData(true)
+    private val _loadingState = MutableLiveData(false)
+    val loadingState : LiveData<Boolean> = _loadingState
+
+    private var _apiCallJob: Job? = null
 
     init {
-        _errorState.addSource(_networkState) {errorUpdate()}
-        _errorState.addSource(_isApiFailed) {errorUpdate()}
+        _errorState.addSource(_networkState) { errorUpdate() }
+        _errorState.addSource(_isApiFailed) { errorUpdate() }
     }
 
-    private fun errorUpdate(){
+    private fun errorUpdate() {
         _errorState.value = _networkState.value == false || _isApiFailed.value == true
-        Log.d("Fatih","error update worked.")
 
     }
 
@@ -47,7 +55,8 @@ class BankListViewModel @Inject constructor(private val bankApiService: BankApiS
             _shownBankList
         } else {
             val tempList = _shownBankList.value?.filter {
-                it.city.startsWith(query, true)}
+                it.city.startsWith(query, true)
+            }
             liveData {
                 tempList?.let { emit(it) }
             }
@@ -57,16 +66,21 @@ class BankListViewModel @Inject constructor(private val bankApiService: BankApiS
     fun searchItems(query: String) {
         currentQuery.value = query
     }
-
-    fun loadData() {
-        viewModelScope.launch {
-            try{
-                _shownBankList.value = bankApiService.getAllBanks()
-                _isApiFailed.value = false
-            } catch (e : Exception){
-                Log.e("Fatih", "exception : $e")
-                _errorText.postValue("Banka servisine ulaşılamadı.")
-                _isApiFailed.postValue(true)
+    
+    fun loadData(){
+        _apiCallJob?.cancel()
+        _apiCallJob = viewModelScope.launch {
+            apiServiceRepository.getBankList().collect{
+                res ->
+                _loadingState.value = res is Resource.Loading
+                res.onSuccess {
+                    _shownBankList.value = res.data ?: ArrayList()
+                    _isApiFailed.value = false
+                }
+                res.onError { throwable, data ->
+                    _errorText.postValue("Banka servisine ulaşılamadı.")
+                    _isApiFailed.postValue(true)
+                }
             }
         }
     }
@@ -86,14 +100,11 @@ class BankListViewModel @Inject constructor(private val bankApiService: BankApiS
             override fun onLost(network: Network) {
                 _networkState.postValue(false)
                 _errorText.postValue("Internet bağlantısı yok.")
-                Log.d("Fatih","onlost conneciton")
             }
 
             override fun onUnavailable() {
                 _networkState.postValue(false)
                 _errorText.postValue("Internet bağlantısı yok.")
-                Log.d("Fatih","onUnavailable conneciton")
-
             }
         })
     }

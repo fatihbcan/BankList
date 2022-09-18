@@ -47,8 +47,6 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
         }
 
         viewModel.shownBankList.observe(viewLifecycleOwner){ bankList ->
-            Log.d("Fatih","bank list size : "+bankList.size)
-
             binding.bankListRecyclerView.also { recyclerView ->
                 recyclerView.layoutManager = LinearLayoutManager(requireContext())
                 recyclerView.adapter = BankListAdapter(bankList, this)
@@ -59,14 +57,28 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
             if(errorExist){
                 binding.bankListRecyclerView.visibility = View.GONE
                 binding.errorText.visibility = View.VISIBLE
+                binding.loadingSpinner.visibility = View.GONE
             } else {
                 binding.bankListRecyclerView.visibility = View.VISIBLE
                 binding.errorText.visibility = View.GONE
+                binding.loadingSpinner.visibility = View.GONE
             }
         }
 
         viewModel.errorText.observe(viewLifecycleOwner){
             binding.errorText.text = it
+        }
+
+        viewModel.loadingState.observe(viewLifecycleOwner) { isLoading ->
+            if(isLoading){
+                binding.bankListRecyclerView.visibility = View.GONE
+                binding.errorText.visibility = View.GONE
+                binding.loadingSpinner.visibility = View.VISIBLE
+            } else {
+                binding.bankListRecyclerView.visibility = View.VISIBLE
+                binding.errorText.visibility = View.GONE
+                binding.loadingSpinner.visibility = View.GONE
+            }
         }
     }
 

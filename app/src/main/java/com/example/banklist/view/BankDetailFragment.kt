@@ -23,7 +23,11 @@ class BankDetailFragment : Fragment(R.layout.fragment_bank_detail) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentBankDetailBinding.bind(view)
 
-        binding.bankName.text = args.bankItem.bankBranch
+        binding.bankName.text = if(args.bankItem.bankBranch.isEmpty()){
+            "Bilinmeyen Şube"
+        } else {
+            args.bankItem.bankBranch
+        }
         binding.address.text = "Address : " + args.bankItem.address
         binding.bankType.text = "Bank Type : " + args.bankItem.bankType
         binding.city.text = "City : " + args.bankItem.city
