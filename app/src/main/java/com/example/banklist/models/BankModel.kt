@@ -1,7 +1,10 @@
 package com.example.banklist.models
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class BankModel(
     @SerializedName("ID") val bankId: Int,
     @SerializedName("dc_SEHIR") val city: String,
@@ -16,4 +19,4 @@ data class BankModel(
     @SerializedName("dc_ON_OFF_SITE") val on_off_site: String,
     @SerializedName("dc_BOLGE_KOORDINATORLUGU") val regionalCoordinator: String,
     @SerializedName("dc_EN_YAKIM_ATM") val closestATM: String
-)
+) : Parcelable

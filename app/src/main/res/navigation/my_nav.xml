@@ -18,5 +18,9 @@
         android:id="@+id/bankDetailFragment"
         android:name="com.example.banklist.view.BankDetailFragment"
         android:label="fragment_bank_detail"
-        tools:layout="@layout/fragment_bank_detail" />
+        tools:layout="@layout/fragment_bank_detail" >
+        <argument
+            android:name="bankItem"
+            app:argType="com.example.banklist.models.BankModel" />
+    </fragment>
 </navigation>

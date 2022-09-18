@@ -30,6 +30,7 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentBankListBinding.bind(view)
         viewModel.loadData()
+        viewModel.observeConnection()
 
         binding.customSearchBar.setOnEditorActionListener { _, actionId, _ ->
             when(actionId){
@@ -52,12 +53,28 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
                 recyclerView.layoutManager = LinearLayoutManager(requireContext())
                 recyclerView.adapter = BankListAdapter(bankList, this)
             }
+        }
 
+        viewModel.errorState.observe(viewLifecycleOwner) { errorExist ->
+            if(errorExist){
+                binding.bankListRecyclerView.visibility = View.GONE
+                binding.errorText.visibility = View.VISIBLE
+            } else {
+                binding.bankListRecyclerView.visibility = View.VISIBLE
+                binding.errorText.visibility = View.GONE
+            }
+        }
+
+        viewModel.errorText.observe(viewLifecycleOwner){
+            binding.errorText.text = it
         }
     }
 
     override fun onRecyclerViewItemClick(bankModel: BankModel) {
-        val action = BankListFragmentDirections.actionBankListFragmentToBankDetailFragment()
+        val action = BankListFragmentDirections.actionBankListFragmentToBankDetailFragment(bankModel)
         findNavController().navigate(action)
     }
+
+
+
 }
