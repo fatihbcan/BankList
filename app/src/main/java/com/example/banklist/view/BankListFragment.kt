@@ -26,11 +26,20 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
 
     private val viewModel : BankListViewModel by viewModels()
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        viewModel.initAnalytics()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentBankListBinding.bind(view)
         viewModel.loadData()
         viewModel.observeConnection()
+
+        binding.title.setOnClickListener {
+            throw RuntimeException("test")
+        }
 
         binding.customSearchBar.setOnEditorActionListener { _, actionId, _ ->
             when(actionId){
@@ -83,6 +92,7 @@ class BankListFragment : Fragment(R.layout.fragment_bank_list), BankListClickLis
     }
 
     override fun onRecyclerViewItemClick(bankModel: BankModel) {
+        viewModel.sendFirebaseEvent(bankModel)
         val action = BankListFragmentDirections.actionBankListFragmentToBankDetailFragment(bankModel)
         findNavController().navigate(action)
     }

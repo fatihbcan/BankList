@@ -6,12 +6,16 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.banklist.models.BankModel
 import com.example.banklist.network.ApiServiceRepository
 import com.example.banklist.network.BankApiService
 import com.example.banklist.utils.Resource
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
@@ -27,6 +31,7 @@ class BankListViewModel @Inject constructor(
 ) :
     ViewModel() {
 
+    private lateinit var analytics: FirebaseAnalytics
     private val _shownBankList = MutableLiveData<List<BankModel>>()
     private val currentQuery = MutableLiveData(DEFAULT_QUERY)
     private val _errorState = MediatorLiveData<Boolean>()
@@ -39,6 +44,28 @@ class BankListViewModel @Inject constructor(
     val loadingState : LiveData<Boolean> = _loadingState
 
     private var _apiCallJob: Job? = null
+
+    fun initAnalytics(){
+        analytics = Firebase.analytics
+    }
+
+    fun sendFirebaseEvent(bankModel: BankModel){
+        val bundle = Bundle()
+        bundle.putInt("bankId",bankModel.bankId)
+        bundle.putString("city",bankModel.city)
+        bundle.putString("district",bankModel.district)
+        bundle.putString("bankBranch",bankModel.bankBranch)
+        bundle.putString("bankType",bankModel.bankType)
+        bundle.putString("bankCode",bankModel.bankCode)
+        bundle.putString("addressName",bankModel.addressName)
+        bundle.putString("address",bankModel.address)
+        bundle.putString("postCode",bankModel.postCode)
+        bundle.putString("on_off_line",bankModel.on_off_line)
+        bundle.putString("on_off_site",bankModel.on_off_site)
+        bundle.putString("regionalCoordinator",bankModel.regionalCoordinator)
+        bundle.putString("closestATM",bankModel.closestATM)
+        analytics.logEvent("SELECTED_BANK",bundle)
+    }
 
     init {
         _errorState.addSource(_networkState) { errorUpdate() }
